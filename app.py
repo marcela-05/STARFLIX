@@ -1,19 +1,25 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
-from usuarios import cadastrar_usuario, login, atualizar_usuario, deletar_usuario
-from filmes import cadastrar_filme, listar_filmes_por_usuario, atualizar_filme, deletar_filme
-from avaliacao import avaliar_filme_por_nome, listar_avaliacoes_por_usuario
+from usuarios import cadastrarUsuario, login, atualizarUsuario, deletarUsuario
+from filmes import cadastrarFilme, listarFilme, atualizarFilme, deletarFilme
+from avaliacao import avaliarFilme, listarAvaliacao
+from utils import carregar_dados_do_json, salvar_dados_no_json
 
+# Configuração do Flask
 app = Flask(__name__)
 app.secret_key = "chave_secreta_para_sessoes"
 
-# Página inicial
+# Nome do arquivo JSON para persistência
+ARQUIVO_JSON = "dados_starflix.json"
+
+# Inicializar os dados do sistema
+dados = carregar_dados_do_json(ARQUIVO_JSON)
+
 @app.route("/")
 def index():
     if "usuario" in session:
         return redirect(url_for("home"))
     return render_template("login.html")
 
-# Login
 @app.route("/login", methods=["POST"])
 def autenticar_login():
     email = request.form["email"]
@@ -27,13 +33,12 @@ def autenticar_login():
         flash(resposta["mensagem"], "erro")
         return redirect(url_for("index"))
 
-# Registro
 @app.route("/register", methods=["POST"])
 def registrar_usuario():
     nome = request.form["nome"]
     email = request.form["email"]
     senha = request.form["senha"]
-    resposta = cadastrar_usuario(nome, email, senha)
+    resposta = cadastrarUsuario(nome, email, senha)
 
     if resposta["status"] == "sucesso":
         flash("Usuário cadastrado com sucesso!", "sucesso")
@@ -41,7 +46,6 @@ def registrar_usuario():
         flash(resposta["mensagem"], "erro")
     return redirect(url_for("index"))
 
-# Página principal do usuário
 @app.route("/home")
 def home():
     if "usuario" not in session:
@@ -49,7 +53,6 @@ def home():
     usuario = session["usuario"]
     return render_template("home.html", usuario=usuario)
 
-# Editar conta
 @app.route("/edit-account", methods=["POST"])
 def edit_account():
     if "usuario" not in session:
@@ -60,9 +63,8 @@ def edit_account():
     novo_email = request.form["email"]
     nova_senha = request.form["senha"]
 
-    resposta = atualizar_usuario(usuario_id, novo_nome, novo_email, nova_senha)
+    resposta = atualizarUsuario(usuario_id, novo_nome, novo_email, nova_senha)
     if resposta["status"] == "sucesso":
-        # Atualiza os dados da sessão com o novo nome e email
         session["usuario"]["nome"] = novo_nome
         session["usuario"]["email"] = novo_email
         flash("Conta atualizada com sucesso!", "sucesso")
@@ -71,16 +73,15 @@ def edit_account():
 
     return redirect(url_for("home"))
 
-# Excluir conta
 @app.route("/delete-account", methods=["POST"])
 def delete_account():
     if "usuario" not in session:
         return redirect(url_for("index"))
 
     usuario_id = session["usuario"]["id"]
-    resposta = deletar_usuario(usuario_id)
+    resposta = deletarUsuario(usuario_id)
     if resposta["status"] == "sucesso":
-        session.pop("usuario", None)  # Remove o usuário da sessão
+        session.pop("usuario", None)
         flash("Conta excluída com sucesso!", "sucesso")
         return redirect(url_for("index"))
     else:
@@ -93,21 +94,14 @@ def movies():
         return redirect(url_for("index"))
 
     usuario_id = session["usuario"]["id"]
-    resposta = listar_filmes_por_usuario(usuario_id)
+    resposta = listarFilme(usuario_id)
 
-    if resposta["status"] == "erro":
-        filmes = []
-        mensagem = resposta["mensagem"]
-    else:
-        filmes = resposta["filmes"]
-        mensagem = None
-
-    # Captura o ID do filme em edição (se houver)
+    filmes = resposta.get("filmes", [])
+    mensagem = resposta.get("mensagem")
     filme_id_em_edicao = request.args.get("editar", type=int)
 
     return render_template("movies.html", filmes=filmes, mensagem=mensagem, filme_id_em_edicao=filme_id_em_edicao)
 
-# Adicionar filme
 @app.route("/add-movie", methods=["POST"])
 def add_movie():
     nome = request.form["nome"]
@@ -116,14 +110,13 @@ def add_movie():
     diretor = request.form["diretor"]
     usuario_id = session["usuario"]["id"]
 
-    resposta = cadastrar_filme(nome, ano, genero, diretor, usuario_id)
+    resposta = cadastrarFilme(nome, ano, genero, diretor, usuario_id)
     if resposta["status"] == "sucesso":
         flash("Filme cadastrado com sucesso!", "sucesso")
     else:
         flash(resposta["mensagem"], "erro")
     return redirect(url_for("movies"))
 
-# Editar filme
 @app.route("/edit-movie/<int:filme_id>", methods=["POST"])
 def edit_movie(filme_id):
     nome = request.form.get("nome")
@@ -132,46 +125,40 @@ def edit_movie(filme_id):
     diretor = request.form.get("diretor")
     usuario_id = session["usuario"]["id"]
 
-    # Verifica se todos os campos estão preenchidos
     if not nome or not ano or not genero or not diretor:
         flash("Todos os campos são obrigatórios.", "erro")
         return redirect(url_for("movies"))
 
-    # Atualiza o filme
-    resposta = atualizar_filme(filme_id, nome, int(ano), genero, diretor, usuario_id)
+    resposta = atualizarFilme(filme_id, nome, int(ano), genero, diretor, usuario_id)
     if resposta["status"] == "sucesso":
         flash("Filme atualizado com sucesso!", "sucesso")
     else:
         flash(resposta["mensagem"], "erro")
     return redirect(url_for("movies"))
 
-# Deletar filme
 @app.route("/delete-movie/<int:filme_id>", methods=["POST"])
 def delete_movie(filme_id):
     usuario_id = session["usuario"]["id"]
-    resposta = deletar_filme(filme_id, usuario_id)
+    resposta = deletarFilme(filme_id, usuario_id)
     if resposta["status"] == "sucesso":
         flash("Filme deletado com sucesso!", "sucesso")
     else:
         flash(resposta["mensagem"], "erro")
     return redirect(url_for("movies"))
 
-# Listar avaliações
 @app.route("/reviews")
 def reviews():
     if "usuario" not in session:
         return redirect(url_for("index"))
+
     usuario_id = session["usuario"]["id"]
-    resposta = listar_avaliacoes_por_usuario(usuario_id)
-    if resposta["status"] == "erro":
-        avaliacoes = []
-        mensagem = resposta["mensagem"]
-    else:
-        avaliacoes = resposta["avaliacoes"]
-        mensagem = None
+    resposta = listarAvaliacao(usuario_id)
+
+    avaliacoes = resposta.get("avaliacoes", [])
+    mensagem = resposta.get("mensagem")
+
     return render_template("reviews.html", avaliacoes=avaliacoes, mensagem=mensagem)
 
-# Adicionar avaliação
 @app.route("/add-review", methods=["POST"])
 def add_review():
     nome_filme = request.form["nome_filme"]
@@ -179,14 +166,13 @@ def add_review():
     nota = int(request.form["nota"])
     comentario = request.form["comentario"]
 
-    resposta = avaliar_filme_por_nome(nome_filme, usuario_id, nota, comentario)
+    resposta = avaliarFilme(nome_filme, usuario_id, nota, comentario)
     if resposta["status"] == "sucesso":
         flash("Avaliação adicionada com sucesso!", "sucesso")
     else:
         flash(resposta["mensagem"], "erro")
     return redirect(url_for("reviews"))
 
-# Logout
 @app.route("/logout")
 def logout():
     session.pop("usuario", None)
