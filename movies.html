@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Gerenciar Filmes</h2>
+<form method="POST" action="{{ url_for('add_movie') }}">
+  <label for="nome">Nome do Filme:</label>
+  <input type="text" name="nome" placeholder="Nome do Filme" required>
+
+  <label for="ano">Ano:</label>
+  <input type="number" name="ano" placeholder="Ano" required>
+
+  <label for="genero">Gênero:</label>
+  <input type="text" name="genero" placeholder="Gênero" required>
+
+  <label for="diretor">Diretor:</label>
+  <input type="text" name="diretor" placeholder="Diretor" required>
+
+  <button type="submit">Adicionar Filme</button>
+</form>
+
+<h3>Filmes Cadastrados:</h3>
+{% if mensagem %}
+  <p>{{ mensagem }}</p>
+{% else %}
+<ul>
+    {% for filme in filmes %}
+    <li>
+      <span>{{ filme.nome }} ({{ filme.ano }}) - {{ filme.genero }} - Diretor: {{ filme.diretor }}</span>
+  
+      <!-- Formulário de edição -->
+      <form method="POST" action="{{ url_for('edit_movie', filme_id=filme.id) }}" style="margin-top: 10px;">
+        <label for="nome">Nome:</label>
+        <input type="text" name="nome" value="{{ filme.nome }}" required>
+  
+        <label for="ano">Ano:</label>
+        <input type="number" name="ano" value="{{ filme.ano }}" required>
+  
+        <label for="genero">Gênero:</label>
+        <input type="text" name="genero" value="{{ filme.genero }}" required>
+  
+        <label for="diretor">Diretor:</label>
+        <input type="text" name="diretor" value="{{ filme.diretor }}" required>
+  
+        <button type="submit">Salvar Alterações</button>
+      </form>
+  
+      <!-- Formulário de exclusão -->
+      <form method="POST" action="{{ url_for('delete_movie', filme_id=filme.id) }}" style="display:inline;">
+        <button type="submit">Excluir</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% endblock %}

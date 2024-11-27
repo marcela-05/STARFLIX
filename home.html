@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Bem-vindo, {{ usuario.nome }}</h2>
+
+<h3>Editar Conta</h3>
+<form method="POST" action="{{ url_for('edit_account') }}">
+  <label for="nome">Nome:</label>
+  <input type="text" id="nome" name="nome" value="{{ usuario.nome }}" required>
+
+  <label for="email">Email:</label>
+  <input type="email" id="email" name="email" value="{{ usuario.email }}" required>
+
+  <label for="senha">Senha:</label>
+  <input type="password" id="senha" name="senha" placeholder="Nova senha" required>
+
+  <button type="submit">Salvar Alterações</button>
+</form>
+
+<h3>Excluir Conta</h3>
+<form method="POST" action="{{ url_for('delete_account') }}">
+  <button type="submit" onclick="return confirm('Tem certeza que deseja excluir sua conta?')">Excluir Conta</button>
+</form>
+{% endblock %}
