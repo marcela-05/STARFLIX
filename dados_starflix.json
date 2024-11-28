@@ -1,16 +1,12 @@
 {
-    "usuarios": [
+    "filmes": [
         {
-            "id": 5850,
-            "nome": "Manoela",
-            "email": "manoela@gmail.com",
-            "senha": "123456"
-        },
-        {
-            "id": 5851,
-            "nome": "Marcela",
-            "email": "marcela@gmail.com",
-            "senha": "123456"
+            "id": 7710,
+            "nome": "Clube da luta",
+            "ano": 1999,
+            "genero": "Ação",
+            "diretor": "X",
+            "usuario_id": 5853
         }
     ]
 }

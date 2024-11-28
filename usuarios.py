@@ -7,6 +7,8 @@ usuarios = dados.get("usuarios", [])
 def cadastrarUsuario(nome, email, senha):
     if any(u['email'] == email for u in usuarios):
         return {"status": "erro", "mensagem": "Email já cadastrado."}
+    if len(senha) < 6:
+        return {"status": "erro", "mensagem": "Senha fraca."}
     usuario = {"id": gerar_id_unico(usuarios), "nome": nome, "email": email, "senha": senha}
     usuarios.append(usuario)
     salvar_dados_no_json(ARQUIVO_JSON, {"usuarios": usuarios})
@@ -20,6 +22,8 @@ def atualizarUsuario(usuario_id, novo_nome, novo_email, nova_senha):
             u['nome'] = novo_nome
             u['email'] = novo_email
             u['senha'] = nova_senha
+            if len(nova_senha) < 6:
+                return {"status": "erro", "mensagem": "Senha fraca."}
             salvar_dados_no_json(ARQUIVO_JSON, {"usuarios": usuarios})
             return {"status": "sucesso", "mensagem": "Conta atualizada com sucesso."}
     return {"status": "erro", "mensagem": "Usuário não encontrado."}
