@@ -1,10 +1,36 @@
 {
-    "usuarios": [
+    "filmes": [
         {
-            "id": 7920,
-            "nome": "Teste Inicial",
-            "email": "teste@inicial.com",
-            "senha": "senha123"
+            "id": 9589,
+            "nome": "Titanic",
+            "ano": 2000,
+            "genero": "Drama",
+            "diretor": "James Cameron",
+            "usuario_id": 2840
+        },
+        {
+            "id": 9590,
+            "nome": "Titanic",
+            "ano": 1111,
+            "genero": "11111",
+            "diretor": "111111",
+            "usuario_id": 3219
+        },
+        {
+            "id": 9591,
+            "nome": "Titanic 1",
+            "ano": 2001,
+            "genero": "Drama",
+            "diretor": "James Cameroon",
+            "usuario_id": 7317
+        },
+        {
+            "id": 9592,
+            "nome": "Titanic 2",
+            "ano": 2001,
+            "genero": "Drama",
+            "diretor": "James Cameron",
+            "usuario_id": 7317
         }
     ]
 }

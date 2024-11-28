@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Buscar um Filme</h2>
+<form method="GET" action="{{ url_for('add_search') }}">
+  <label for="nome_filme">Nome do Filme/Diretor:</label>
+  <input type="text" name="nome_filme" placeholder="Filme/Diretor" required>
+
+  <button type="submit">Pesquisar</button>
+</form>
+
+<h3>Itens Encontrados</h3>
+{% if mensagem %}
+<p>{{ mensagem }}</p>
+{% else %}
+<ul>
+  {% for filme in filmes %}
+  <li>
+    <span>{{ filme.nome }} ({{ filme.ano }}) - {{ filme.genero }} - Diretor: {{ filme.diretor }}</span>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

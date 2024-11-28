@@ -12,6 +12,7 @@
     {% if session.usuario %}
     <nav>
       <a href="{{ url_for('home') }}">Minha Conta</a>
+      <a href="{{ url_for('searches') }}">Pesquisar</a>
       <a href="{{ url_for('movies') }}">Filmes</a>
       <a href="{{ url_for('reviews') }}">Avaliações</a>
       <a href="{{ url_for('logout') }}">Sair</a>

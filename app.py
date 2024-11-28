@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from usuarios import cadastrarUsuario, login, atualizarUsuario, deletarUsuario
 from filmes import cadastrarFilme, listarFilme, atualizarFilme, deletarFilme, buscarFilme
 from avaliacao import avaliarFilme, listarAvaliacao
+from busca import buscarFilme
 from utils import carregar_dados_do_json, salvar_dados_no_json
 
 # Configuração do Flask
@@ -158,6 +159,39 @@ def reviews():
     mensagem = resposta.get("mensagem")
 
     return render_template("reviews.html", avaliacoes=avaliacoes, mensagem=mensagem)
+
+@app.route("/searches")
+def searches():
+    if "usuario" not in session:
+        return redirect(url_for("index"))
+
+    usuario_id = session["usuario"]["id"]
+    #resposta = listarAvaliacao(usuario_id)
+
+    #avaliacoes = resposta.get("avaliacoes", [])
+    #mensagem = resposta.get("mensagem")
+
+    return render_template("search.html")
+
+@app.route("/add-search", methods=["GET"])
+def add_search():
+    nome_filme = request.args.get("nome_filme", "")  # Corrigido para usar request.args
+    usuario_id = session.get("usuario", {}).get("id")
+
+    if not nome_filme:
+        flash("O campo de pesquisa deve ser preenchido.", "erro")
+        return redirect(url_for("searches"))
+
+    resposta = buscarFilme(nome_filme, usuario_id)
+    if resposta["status"] == "sucesso":
+        flash("Filme encontrado", "sucesso")
+        filmes = resposta["filme"]
+    else:
+        flash(resposta["mensagem"], "erro")
+        filmes = []
+
+    return render_template("search.html", filmes=filmes, mensagem=resposta.get("mensagem"))
+
 
 @app.route("/add-review", methods=["POST"])
 def add_review():
