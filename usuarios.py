@@ -4,6 +4,10 @@ ARQUIVO_JSON = "dados_starflix.json"
 dados = carregar_dados_do_json(ARQUIVO_JSON)
 usuarios = dados.get("usuarios", [])
 
+def resetar_usuarios():
+    global usuarios
+    usuarios = []
+
 def cadastrarUsuario(nome, email, senha):
     if any(u['email'] == email for u in usuarios):
         return {"status": "erro", "mensagem": "Email já cadastrado."}
