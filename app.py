@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from usuarios import cadastrarUsuario, login, atualizarUsuario, deletarUsuario
-from filmes import cadastrarFilme, listarFilme, atualizarFilme, deletarFilme
+from filmes import cadastrarFilme, listarFilme, atualizarFilme, deletarFilme, buscarFilme
 from avaliacao import avaliarFilme, listarAvaliacao
 from utils import carregar_dados_do_json, salvar_dados_no_json
 

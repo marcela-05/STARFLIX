@@ -8,7 +8,7 @@ def cadastrarFilme(nome, ano, genero, diretor, usuario_id):
     if ano > 2024:
         return {"status": "erro", "mensagem": "Ano inválido. O ano do filme não pode ser maior que 2024."}
 
-    if any(f['nome'].lower() == nome.lower() for f in filmes):
+    if any(f['nome'].lower() == nome.lower() and usuario_id == f["usuario_id"] for f in filmes):
         return {"status": "erro", "mensagem": "Já existe um filme com este nome."}
 
     filme = {
@@ -87,3 +87,18 @@ def verificar_filme_unico(nome):
 
     # Se apenas um filme for encontrado
     return {"status": "sucesso", "filme": encontrados[0]}
+
+def buscarFilme(nome,usuario_id):
+
+    if len(nome) == 0:
+        return {"status": "erro", "mensagem": "O campo de pesquisa deve ser preenchido."}
+
+    encontrados = [f for f in filmes if nome.lower() in f['nome'].lower() and f['usuario_id'] == usuario_id]
+
+    # Caso nenhum filme seja encontrado
+    if len(encontrados) == 0:
+        return {"status": "erro", "mensagem": "Não existem filmes com esse nome."}
+
+    # Caso um ou mais filmes sejam encontrados
+    else:
+        return {"status": "sucesso", "filme": encontrados}

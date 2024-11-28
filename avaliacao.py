@@ -15,8 +15,12 @@ def avaliarFilme(nome_filme: str, usuario_id: int, nota: int, comentario: str = 
         return resposta
 
     filme = resposta["filme"]
+    if filme["usuario_id"] != usuario_id:
+        return {"status": "erro", "mensagem": "Você só pode avaliar filmes que você criou!"}
+    
     if any(a for a in avaliacoes if a["filme_id"] == filme["id"] and a["usuario_id"] == usuario_id):
         return {"status": "erro", "mensagem": "Você já avaliou este filme."}
+
 
     if not (1 <= nota <= 5):
         return {"status": "erro", "mensagem": "Nota inválida."}
